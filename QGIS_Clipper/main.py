@@ -1,4 +1,4 @@
-
+import sys
 import wx
 import clipper
 
@@ -32,8 +32,20 @@ def gui ():
 
 
 if __name__=="__main__":
-    print("Test")
-    clipper.clipper()
 
-    #clipper()
+    '''
+    country_boundary = 'W:/08 Projects/160 Iberdrola/001 Australia(SA)/07 Exports/Boundary/WP-SA-Boundary.kml'
+    buffer = 1
+    raster_map = 'C:/Users/Admin/Downloads/IRENA_vortex_M.140.year.tiff'
+    output_file = 'S:/QGIS_Clipper/QGIS_Clipper/output.asc'
+    '''
+
+    # Reading cmdline args
+
+    country_boundary = sys.argv[1]
+    buffer = int(sys.argv[2])
+    raster_map = sys.argv[3]
+    output_file = sys.argv[4]
+
+    clipper.clipper(country_boundary=country_boundary, buffer_dist=buffer, raster_map=raster_map, output_file=output_file)
     #gui()

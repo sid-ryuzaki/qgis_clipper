@@ -3,9 +3,6 @@ import sys
 
 from qgis.core import *
 
-#qgs = QgsApplication([], False)
-#qgs.initQgis()
-
 sys.path.append('C:\\Program Files\\QGIS 3.22.16\\apps\\qgis-ltr\\python\\plugins')
 
 import plugins.processing
@@ -40,7 +37,7 @@ class MyFeedBack(QgsProcessingFeedback):
     def reportError(self, error, fatalError=False):
         print(error)
 
-def clipper():
+def clipper(country_boundary, buffer_dist, raster_map, output_file):
 
     print ("In clipper")
 
@@ -59,8 +56,6 @@ def clipper():
 
 
     dlg = ModelerDialog ()
-    #dlg.loadModel('C:/Users/Admin/OneDrive - wind-pioneers.com/Documents/Value Added/Raster clipping and '
-                  #'Conversion.model3')
 
     dlg.loadModel('C:/Users/Admin/OneDrive - wind-pioneers.com/Documents/Value Added/Raster clipping'
                   '.model3')
@@ -69,24 +64,19 @@ def clipper():
 
     QgsApplication.processingRegistry().addProvider(QgsNativeAlgorithms())
 
-
-
     model = dlg.model()
-
-
-   # model =  QgsProcessingModelAlgorithm('C:/Users/Admin/OneDrive - wind-pioneers.com/Documents/Value Added/Raster clipping and Conversion.model3')
 
     context = dataobjects.createContext()
     context.setInvalidGeometryCheck(QgsFeatureRequest.GeometryNoCheck)
 
-    result = plugins.processing.run(model, {'country_boundary':'W:/08 Projects/160 Iberdrola/001 Australia(SA)/07 Exports/Boundary/WP-SA-Boundary.kml', 'buffer_distance':1  ,'raster_map':'C:/Users/Admin/Downloads/IRENA_vortex_M.140.year.tiff', 'final_clipped_raster':r'S:/QGIS_Clipper/QGIS_Clipper/output.asc', 'OPTIONS': 'FORMAT=AAIGrid' }, feedback=MyFeedBack(), context=context)
+    result = plugins.processing.run(model, {'country_boundary':country_boundary, 'buffer_distance':buffer_dist  ,'raster_map':raster_map}, feedback=MyFeedBack(), context=context)
 
     clippedoutput = result['CHILD_RESULTS']['gdal:cliprasterbymasklayer_1']['OUTPUT']
 
     params = {
         'INPUT': clippedoutput,  # Input raster file
         'TARGET_CRS': None,  # CRS transformation (optional)
-        'OUTPUT': 'S:/QGIS_Clipper/QGIS_Clipper/output.asc',  # Output ASCII file
+        'OUTPUT': output_file,  # Output ASCII file
         'OPTIONS': 'FORMAT=AAIGrid'  # GDAL translate options for ASCII format
     }
 
@@ -95,8 +85,3 @@ def clipper():
     # Finally, exitQgis() is called to remove the
     # provider and layer registries from memory
     qgs.exitQgis()
-
-
-def testfunc ():
-    print("adsasd")
-
