@@ -1,22 +1,67 @@
 import os
 import sys
-import wx
-from win32gui import GetPath
+from time import sleep
 
+import wx
+import threading
 import clipper
+
+
+class ProgressDialog(wx.Dialog):
+    def __init__(self, parent, title, numfiles):
+        style = wx.DEFAULT_DIALOG_STYLE & ~wx.RESIZE_BORDER & ~wx.CLOSE_BOX
+        super(ProgressDialog, self).__init__(parent, title=title, size=(400, 200), style=style)
+        panel = wx.Panel(self)
+        self.totalfiles = numfiles
+        calm = wx.StaticText(panel, label= "Conversion in Progress. App might not Respond. Please Stay Calm!", pos=(10, 10))
+        self.completion = wx.StaticText(panel, label= "0/" + str(numfiles) + " Files Completed", pos=(0, 50))
+
+
+        self.gauge = wx.Gauge(panel, range=100, size=(300, 25), pos=(0, 100), style=wx.GA_PROGRESS)
+        self.gauge.SetValue(1)
+
+    def updateprogress (self, percent, currentfile):
+        #wx.CallAfter(self.gauge.SetValue, int(percent))
+        self.completion.SetLabelText(str(currentfile) + "/" + str(self.totalfiles) + " Files Completed")
+        self.gauge.SetValue(int(percent))
+
+    def hideprogress (self):
+        self.Hide()
 
 
 class MyFrame(wx.Frame):
 
+    def showprogress (self, numfiles):
+        self.progressdlg = ProgressDialog(self, "Progress", numfiles)
+        self.progressdlg.Show()
+
+    def hideprogress (self):
+        self.progressdlg.hideprogress()
+
+
+    def updateprogress (self, percent, currentfile):
+       self.progressdlg.updateprogress (percent, currentfile)
+
     def execute_clipper (self, event):
 
-        country_boundarys = self.ctry_boundary_input.GetPath()
-        buffers = int(self.buffer_val_input.GetValue())
-        raster_maps = self.raster_map_input.GetPaths()
+        country_boundarys = ""
+        buffers = ""
+        raster_maps = ""
+        output_paths = ""
+        try:
+            country_boundarys = self.ctry_boundary_input.GetPath()
+            buffers = int(self.buffer_val_input.GetValue())
+            raster_maps = self.raster_map_input.GetPaths()
+            output_paths =  self.output_path_input.GetPath()
+        except:
+            wx.MessageBox("Values Missing. Please Check and Re-enter", "Error", wx.OK | wx.ICON_INFORMATION)
+            return
+
+        completion = 1
 
         # Progress
 
-        progressdialog = wx.MessageBox("Conversion in progress.....")
+        self.showprogress(len(raster_maps))
 
         # Iterating through raster maps
 
@@ -25,12 +70,17 @@ class MyFrame(wx.Frame):
             base_name = os.path.basename(rasters)
             # Split the base name into name and extension
             opfilename, ext = os.path.splitext(base_name)
-            output_files = self.output_path_input.GetPath() + "/" + opfilename + "_clipped.asc"
+            output_files = output_paths + "/" + opfilename + "_clipped.asc"
 
 
             clipper.clipper(country_boundary=country_boundarys, buffer_dist=buffers, raster_map=rasters,
                             output_file=output_files)
 
+            self.updateprogress((completion/len(raster_maps)) * 100, completion)
+            completion += 1
+            sleep(3)
+
+        self.hideprogress()
         wx.MessageBox("Done. Click OK to view Output Folder", "Conversion done.", wx.OK | wx.ICON_INFORMATION)
 
         os.startfile(self.output_path_input.GetPath())
@@ -50,6 +100,9 @@ class MyFrame(wx.Frame):
         super(MyFrame, self).__init__(*args, **kw)
 
         # Create a self.panel in the frame
+        self.progressdlg = None
+        self.raster_map_input = None
+        self.gauge = None
         self.panel = wx.Panel(self)
 
         # Create a text control on the self.panel
