@@ -31,8 +31,9 @@ class MyFrame(wx.Frame):
             clipper.clipper(country_boundary=country_boundarys, buffer_dist=buffers, raster_map=rasters,
                             output_file=output_files)
 
-        wx.MessageBox("Done", "Conversion done. Check " + output_files + " for the result!", wx.OK | wx.ICON_INFORMATION)
+        wx.MessageBox("Done. Click OK to view Output Folder", "Conversion done.", wx.OK | wx.ICON_INFORMATION)
 
+        os.startfile(self.output_path_input.GetPath())
 
     def rasterfilepicker (self, event):
         self.raster_map_input = wx.FileDialog(self.panel,
