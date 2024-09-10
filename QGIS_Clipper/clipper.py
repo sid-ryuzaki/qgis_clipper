@@ -37,12 +37,18 @@ class MyFeedBack(QgsProcessingFeedback):
     def reportError(self, error, fatalError=False):
         print(error)
 
-def clipper(country_boundary, buffer_dist, raster_map, output_file):
 
-    print ("In clipper")
+qgs= ""
+dlg = ""
+model = ""
+context = ""
+
+def initqgs (path):
+
+    global qgs, dlg, model, context
 
     # Supply path to qgis install location
-    QgsApplication.setPrefixPath("C:\\Program Files\\QGIS 3.22.16", True)
+    QgsApplication.setPrefixPath(path, True)
 
     # Create a reference to the QgsApplication.  Setting the
     # second argument to False disables the GUI.
@@ -51,11 +57,7 @@ def clipper(country_boundary, buffer_dist, raster_map, output_file):
     # Load providers
     qgs.initQgis()
 
-    # Write your code here to load some layers, use processing
-    # algorithms, etc.
-
-
-    dlg = ModelerDialog ()
+    dlg = ModelerDialog()
 
     dlg.loadModel('C:/Users/Admin/OneDrive - wind-pioneers.com/Documents/Value Added/Raster clipping'
                   '.model3')
@@ -68,6 +70,23 @@ def clipper(country_boundary, buffer_dist, raster_map, output_file):
 
     context = dataobjects.createContext()
     context.setInvalidGeometryCheck(QgsFeatureRequest.GeometryNoCheck)
+
+def finalizeqgs ():
+
+    global qgs
+
+    # Finally, exitQgis() is called to remove the
+    # provider and layer registries from memory
+    qgs.exitQgis()
+
+def clipper(country_boundary, buffer_dist, raster_map, output_file):
+
+    print ("In clipper")
+
+    global qgs, dlg, model, context
+
+    # Write your code here to load some layers, use processing
+    # algorithms, etc.
 
     result = plugins.processing.run(model, {'country_boundary':country_boundary, 'buffer_distance':buffer_dist  ,'raster_map':raster_map}, feedback=MyFeedBack(), context=context)
 
@@ -82,6 +101,3 @@ def clipper(country_boundary, buffer_dist, raster_map, output_file):
 
     ascii_out = plugins.processing.run("gdal:translate", params, feedback=MyFeedBack(), context=context)
 
-    # Finally, exitQgis() is called to remove the
-    # provider and layer registries from memory
-    qgs.exitQgis()
