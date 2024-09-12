@@ -1,4 +1,4 @@
-
+import os
 import sys
 
 from qgis.core import *
@@ -46,6 +46,13 @@ context = ""
 def initqgs (path):
 
     global qgs, dlg, model, context
+
+    ''' Set QGIS paths based on whether running as a bundled application or not '''
+    if getattr(sys,'frozen',False):
+        print("Running In An Application Bundle")
+        bundle_dir = os.path.abspath(".")
+        qgis_prefix_path = bundle_dir
+        qgis_plugin_path = bundle_dir + '\qgis_plugins'
 
     # Supply path to qgis install location
     QgsApplication.setPrefixPath(path, True)

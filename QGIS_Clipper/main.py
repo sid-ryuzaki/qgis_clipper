@@ -4,6 +4,7 @@ from time import sleep
 
 import wx
 import threading
+
 import clipper
 
 
@@ -78,7 +79,6 @@ class MyFrame(wx.Frame):
 
             self.updateprogress((completion/len(raster_maps)) * 100, completion)
             completion += 1
-            sleep(3)
 
         self.hideprogress()
         wx.MessageBox("Done. Click OK to view Output Folder", "Conversion done.", wx.OK | wx.ICON_INFORMATION)
@@ -162,6 +162,7 @@ def gui ():
 
 if __name__=="__main__":
 
+    print(sys.path)
     # Initializing qgs
 
     clipper.initqgs("C:\\Program Files\\QGIS 3.22.16")
@@ -173,7 +174,7 @@ if __name__=="__main__":
     buffer = 1
     raster_map = 'C:/Users/Admin/Downloads/IRENA_vortex_M.140.year.tiff'
     output_file = 'S:/QGIS_Clipper/QGIS_Clipper/output.asc'
-    '''
+    
 
     # Reading cmdline args
 
@@ -181,6 +182,7 @@ if __name__=="__main__":
     buffer = int(sys.argv[2])
     raster_map = sys.argv[3]
     output_file = sys.argv[4]
+    '''
 
     #clipper.clipper(country_boundary=country_boundary, buffer_dist=buffer, raster_map=raster_map, output_file=output_file)
     #gui()
