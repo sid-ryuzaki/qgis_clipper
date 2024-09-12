@@ -1,2 +1,1 @@
-# config.txt
-qgis_path=C:\Program Files\QGIS 3.22.16
+qgis_path=

@@ -5,7 +5,7 @@
 ::YAwzuBVtJxjWCl3EqQJgSA==
 ::ZR4luwNxJguZRRnk
 ::Yhs/ulQjdF+5
-::cxAkpRVqdFKZSzk=
+::cxAkpRVqdFKZSjk=
 ::cBs/ulQjdF+5
 ::ZR41oxFsdFKZSDk=
 ::eBoioBt6dFKZSDk=
@@ -44,5 +44,32 @@ for /f "tokens=1,2 delims==" %%A in (%config_file%) do (
     set "%%A=%%B"
 )
 
+REM Check if setting is empty
+
+if "%qgis_path%" == "" (
+    GOTO ASK_INPUT
+) else (
+    GOTO RUN
+)
+
+
+
+:ASK_INPUT
+set /P qgis_path=Enter QGIS installation path (eg. C:\Program Files\QGIS 3.22.16):
+
+REM write to file
+echo qgis_path=%qgis_path% > config.txt
+GOTO RUN
+
+:RUN
+
+SetLocal EnableDelayedExpansion
+
+REM Remove trailing spaces
+
+for /f "tokens=* delims= " %%a in ("%qgis_path%") do set qgis_path=%%a
+for /l %%a in (1,1,100) do if "!qgis_path:~-1!"==" " set qgis_path=!qgis_path:~0,-1!
+
 "%qgis_path%\bin\python-qgis-ltr.bat" main.py
 
+endlocal
